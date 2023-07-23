@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">AndroidBasicWithCompose_Intents_Intent Filters</string>
-    <string name="mime_type">text/plain</string>
+    <string name="mime_type_string">text/plain</string>
+    <string name="mime_type_image">image/*</string>
     <string name="ac_second_content">This is the second activity. Raw Jetpack Compose Project doesn\'t have more than one activity though. This is for experiment only.</string>
 </resources>

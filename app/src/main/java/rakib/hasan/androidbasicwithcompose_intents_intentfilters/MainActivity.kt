@@ -5,13 +5,15 @@ package rakib.hasan.androidbasicwithcompose_intents_intentfilters
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
@@ -26,22 +28,24 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import rakib.hasan.androidbasicwithcompose_intents_intentfilters.ui.theme.AndroidBasicWithCompose_Intents_IntentFiltersTheme
 
 class MainActivity : ComponentActivity() {
+
+     private val viewModel by viewModels<ImageViewModel>()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         setContent {
             AndroidBasicWithCompose_Intents_IntentFiltersTheme {
                 Scaffold(
@@ -55,6 +59,8 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        ImageContainer(viewModel)
+                        Spacer(modifier = Modifier.height(16.dp))
                         ExplicitBox(this@MainActivity)
                         Spacer(modifier = Modifier.height(16.dp))
                         ImplicitBox(this@MainActivity)
@@ -62,6 +68,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        } else {
+            intent?.getParcelableExtra(Intent.EXTRA_STREAM)
+        }
+        Log.e("URI", "URI = $uri")
+        viewModel.updateUri(uri)
     }
 }
 
@@ -81,6 +98,16 @@ fun AppBar(context: Context) = TopAppBar(
         }
     }
 )
+
+@Composable
+fun ImageContainer(viewModel: ImageViewModel) {
+    viewModel.uri?.let {
+        AsyncImage(
+            model = viewModel.uri,
+            contentDescription = null
+        )
+    }
+}
 
 @Composable
 fun ExplicitBox(context: Context) {
